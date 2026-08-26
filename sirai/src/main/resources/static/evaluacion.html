@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIRAI - Cuestionario de Evaluación</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm py-3 px-6">
+  <div class="max-w-5xl mx-auto flex justify-between items-center">
+    <a href="index.html" class="flex items-center gap-3">
+      <span class="text-lg font-black text-slate-800">SIRAI</span>
+    </a>
+  </div>
+</nav>
+
+<main class="max-w-3xl mx-auto my-8 px-4 w-full flex-grow">
+
+  <!-- PASO 1: REGISTRO DE DATOS DEL ESTUDIANTE -->
+  <div id="pasoEstudiante" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+    <div class="mb-6 border-b border-slate-100 pb-4">
+      <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-id-card text-sky-600"></i> Registro del Estudiante
+      </h2>
+      <p class="text-slate-500 text-sm mt-1">Complete la siguiente información antes de iniciar el cuestionario.</p>
+    </div>
+
+    <form id="formEstudiante" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombres</label>
+          <input type="text" id="nombres" required placeholder="Ingrese sus nombres" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Apellidos</label>
+          <input type="text" id="apellidos" required placeholder="Ingrese sus apellidos" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sexo</label>
+          <select id="sexo" required class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+            <option value="">Seleccione...</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Masculino">Masculino</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Edad</label>
+          <input type="number" id="edad" required min="15" max="90" placeholder="Ingrese su edad" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Escuela Profesional</label>
+          <select id="selectEscuela" required class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+            <option value="">Cargando escuelas...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Ciclo académico</label>
+          <select id="ciclo_academico" required class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+            <option value="">Seleccione...</option>
+            <option value="I">I</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+            <option value="V">V</option>
+            <option value="VI">VI</option>
+            <option value="VII">VII</option>
+            <option value="VIII">VIII</option>
+            <option value="IX">IX</option>
+            <option value="X">X</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Promedio ponderado</label>
+          <input type="number" step="0.01" id="promedio" min="0" max="20" required placeholder="Ej. 14.50" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+        </div>
+      </div>
+
+      <button type="submit" class="w-full mt-6 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+        <span>Siguiente: Iniciar Cuestionario</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- PASO 2: CUESTIONARIO DE 20 ÍTEMS -->
+  <div id="pasoCuestionario" class="hidden space-y-6">
+
+    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-center justify-between">
+      <div>
+        <h3 id="nombreEstudianteTag" class="font-bold text-sky-900 text-sm">Estudiante: Carga...</h3>
+        <p class="text-xs text-sky-700">Responda marcando de 1 (Nunca) a 5 (Siempre).</p>
+      </div>
+      <span class="text-xs bg-sky-600 text-white px-2.5 py-1 rounded-lg font-bold">20 Ítems</span>
+    </div>
+
+    <form id="formCuestionario" class="space-y-6">
+      <div id="contenedorPreguntas" class="space-y-6"></div>
+
+      <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition text-lg flex items-center justify-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Finalizar y Obtener Diagnóstico</span>
+      </button>
+    </form>
+
+  </div>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center border-t border-slate-800">
+  <p>© 2026 SIRAI. Sistema Inteligente de Riesgo de Adicción a Internet</p>
+</footer>
+
+<script>
+  const API_URL = 'http://localhost:8080/api';
+  let estudianteIdGuardado = null;
+
+  const etiquetasLikert = {
+    1: 'Nunca',
+    2: 'Casi nunca',
+    3: 'A veces',
+    4: 'Casi siempre',
+    5: 'Siempre'
+  };
+
+  const preguntasSIRAI = [
+      { id: 1, dimension: 'Uso Excesivo de Internet', texto: 'AI1. Paso más tiempo en Internet del que había planificado.' },
+      { id: 2, dimension: 'Uso Excesivo de Internet', texto: 'AI2. Me cuesta desconectarme cuando estoy navegando.' },
+      { id: 3, dimension: 'Uso Excesivo de Internet', texto: 'AI3. Utilizo Internet durante gran parte de mi tiempo libre.' },
+      { id: 4, dimension: 'Uso Excesivo de Internet', texto: 'AI4. Reviso Internet repetidamente durante el día.' },
+      { id: 5, dimension: 'Uso Excesivo de Internet', texto: 'AI5. Pierdo la noción del tiempo cuando estoy conectado.' },
+
+      { id: 6, dimension: 'Dependencia Emocional', texto: 'AI6. Me siento incómodo cuando no tengo acceso a Internet.' },
+      { id: 7, dimension: 'Dependencia Emocional', texto: 'AI7. Utilizo Internet para sentirme mejor cuando estoy estresado.' },
+      { id: 8, dimension: 'Dependencia Emocional', texto: 'AI8. Me preocupa no poder conectarme.' },
+      { id: 9, dimension: 'Dependencia Emocional', texto: 'AI9. Siento necesidad de revisar constantemente mis redes sociales.' },
+      { id: 10, dimension: 'Dependencia Emocional', texto: 'AI10. Me resulta difícil permanecer varias horas sin Internet.' },
+
+      { id: 11, dimension: 'Impacto Académico', texto: 'AI11. Descuido tareas académicas por usar Internet.' },
+      { id: 12, dimension: 'Impacto Académico', texto: 'AI12. He reducido mis horas de estudio debido al uso de Internet.' },
+      { id: 13, dimension: 'Impacto Académico', texto: 'AI13. Mi rendimiento académico se ha visto afectado por permanecer conectado.' },
+      { id: 14, dimension: 'Impacto Académico', texto: 'AI14. Me distraigo durante clases por revisar Internet.' },
+      { id: 15, dimension: 'Impacto Académico', texto: 'AI15. Retraso trabajos académicos por permanecer conectado.' },
+
+      { id: 16, dimension: 'Pérdida de Control', texto: 'AI16. He intentado reducir el tiempo de conexión sin éxito.' },
+      { id: 17, dimension: 'Pérdida de Control', texto: 'AI17. Oculto el tiempo real que paso conectado.' },
+      { id: 18, dimension: 'Pérdida de Control', texto: 'AI18. Continúo usando Internet aun cuando debería realizar otras actividades.' },
+      { id: 19, dimension: 'Pérdida de Control', texto: 'AI19. Me resulta difícil establecer límites de uso.' },
+      { id: 20, dimension: 'Pérdida de Control', texto: 'AI20. Sigo conectado incluso cuando afecta mis responsabilidades.' }
+  ];
+
+  // 1. Cargar catálogo de escuelas al iniciar
+  document.addEventListener('DOMContentLoaded', () => {
+      fetch(`${API_URL}/public/escuelas-profesionales`)
+          .then(res => {
+              if(!res.ok) throw new Error("Status " + res.status);
+              return res.json();
+          })
+          .then(escuelas => {
+              const select = document.getElementById('selectEscuela');
+              select.innerHTML = '<option value="">Selecciona tu escuela profesional --</option>';
+              escuelas.forEach(e => {
+                  select.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+              });
+          })
+          .catch(err => {
+              console.error("Error al cargar escuelas:", err);
+              document.getElementById('selectEscuela').innerHTML = '<option value="">Error al cargar escuelas</option>';
+          });
+
+      renderizarPreguntas();
+  });
+
+  // 2. Render de ítems Likert agrupados
+  function renderizarPreguntas() {
+      const contenedor = document.getElementById('contenedorPreguntas');
+      contenedor.innerHTML = '';
+
+      const dimensionesMap = {};
+      preguntasSIRAI.forEach(p => {
+          if (!dimensionesMap[p.dimension]) {
+              dimensionesMap[p.dimension] = [];
+          }
+          dimensionesMap[p.dimension].push(p);
+      });
+
+      Object.keys(dimensionesMap).forEach(nombreDimension => {
+          const preguntas = dimensionesMap[nombreDimension];
+
+          const preguntasHTML = preguntas.map((p, index) => `
+              <div class="space-y-3 ${index > 0 ? 'pt-5 border-t border-slate-100' : ''}">
+                  <p class="font-semibold text-slate-800 text-sm">${p.texto}</p>
+
+                  <div class="grid grid-cols-5 gap-1.5 pt-1">
+                      ${[1, 2, 3, 4, 5].map(valor => `
+                          <label class="flex flex-col items-center justify-center p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-sky-50 hover:border-sky-300 transition text-center">
+                              <input type="radio" name="p_${p.id}" value="${valor}" required class="accent-sky-600 mb-1">
+                              <span class="text-xs font-bold text-slate-700">${valor}</span>
+                              <span class="text-[9px] text-slate-500 font-normal leading-tight mt-0.5">
+                                  ${etiquetasLikert[valor]}
+                              </span>
+                          </label>
+                      `).join('')}
+                  </div>
+              </div>
+          `).join('');
+
+          contenedor.innerHTML += `
+              <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                  <div class="border-b border-slate-100 pb-3">
+                      <span class="text-xs uppercase font-bold text-sky-700 bg-sky-50 px-3 py-1.5 rounded-lg border border-sky-100 inline-block">
+                          ${nombreDimension}
+                      </span>
+                  </div>
+                  <div class="space-y-5">
+                      ${preguntasHTML}
+                  </div>
+              </div>
+          `;
+      });
+  }
+
+  // 3. Registrar Estudiante (POST /api/public/estudiantes)
+  document.getElementById('formEstudiante').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const selectEscuela = document.getElementById('selectEscuela').value;
+      if (!selectEscuela) {
+          alert("Por favor elija una Escuela Profesional.");
+          return;
+      }
+
+      // Mapeo exacto con la entidad Estudiante.java
+      const datosEstudiante = {
+          nombres: document.getElementById('nombres').value,
+          apellidos: document.getElementById('apellidos').value,
+          sexo: document.getElementById('sexo').value,
+          edad: parseInt(document.getElementById('edad').value),
+          cicloAcademico: document.getElementById('ciclo_academico').value,
+          promedioPonderado: parseFloat(document.getElementById('promedio').value),
+          escuelaProfesional: { id: parseInt(selectEscuela) }
+      };
+
+      try {
+          const res = await fetch(`${API_URL}/public/estudiantes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(datosEstudiante)
+          });
+
+          if (!res.ok) {
+              const errBody = await res.text();
+              throw new Error(`HTTP ${res.status}: ${errBody}`);
+          }
+
+          const estudiante = await res.json();
+          estudianteIdGuardado = estudiante.id;
+          document.getElementById('nombreEstudianteTag').innerText = `Estudiante: ${estudiante.nombres} ${estudiante.apellidos}`;
+
+          document.getElementById('pasoEstudiante').classList.add('hidden');
+          document.getElementById('pasoCuestionario').classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+          console.error("Error al registrar estudiante:", err);
+          alert("Error al registrar estudiante:\n" + err.message);
+      }
+  });
+
+  // 4. Guardar Evaluación (POST /api/evaluacion/guardar)
+  document.getElementById('formCuestionario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!estudianteIdGuardado) {
+          alert("Atención: No se ha detectado el ID del estudiante registrado.");
+          return;
+      }
+
+      let respuestasMap = {};
+      let respondidas = 0;
+
+      preguntasSIRAI.forEach(p => {
+          const seleccion = document.querySelector(`input[name="p_${p.id}"]:checked`);
+          if (seleccion) {
+              respuestasMap[`p_${p.id}`] = parseInt(seleccion.value);
+              respondidas++;
+          }
+      });
+
+      if (respondidas < 20) {
+          alert(`Debe contestar las 20 preguntas (Resueltas: ${respondidas}/20).`);
+          return;
+      }
+
+      // Mapeo exacto con EvaluacionRequestDTO.java
+      const evaluacionDTO = {
+          estudianteId: estudianteIdGuardado,
+          respuestas: respuestasMap
+      };
+
+      try {
+          // URL ajustada al endpoint exacto en EvaluacionController.java
+          const res = await fetch(`${API_URL}/evaluacion/guardar`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(evaluacionDTO)
+          });
+
+          if (!res.ok) {
+              const errBody = await res.text();
+              throw new Error(`HTTP ${res.status}: ${errBody}`);
+          }
+
+          const resultadoCalculado = await res.json();
+          console.log("Resultado retornado por el backend:", resultadoCalculado);
+
+          // Redirección con el ID retornado (puedes ajustar el parámetro según necesites)
+          window.location.href = `agradecimiento.html?id=${resultadoCalculado.id || estudianteIdGuardado}`;
+
+      } catch (err) {
+          console.error("Error al guardar evaluación:", err);
+          alert("Error al procesar la evaluación:\n" + err.message);
+      }
+  });
+</script>
+</body>
+</html>

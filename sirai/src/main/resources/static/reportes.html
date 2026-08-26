@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRAI - Reportes y Exportación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex">
+<div class="flex h-screen w-screen overflow-hidden bg-slate-100">
+    <div id="sidebar-container" class="h-full bg-slate-900 shrink-0"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+        <header class="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400 font-semibold uppercase">Administración</span>
+                <span class="text-slate-300">/</span>
+                <span class="text-sm font-bold text-slate-700">Reportes Consolidados</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="mostrarNombreUsuario" class="text-xs font-bold text-slate-700">Administrador</p>
+                    <p class="text-[10px] text-slate-400">Administrador</p>
+                </div>
+                <div class="w-9 h-9 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <main class="p-6 max-w-7xl w-full mx-auto space-y-6">
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Generador de Reportes</h2>
+                    <p class="text-xs text-slate-500">Filtra la información requerida y exporta los datos consolidados directamente a Excel.</p>
+                </div>
+                <button onclick="exportarExcel()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm shadow-emerald-600/30">
+                    <i class="fa-solid fa-file-excel text-sm"></i>
+                    <span>Exportar a Excel</span>
+                </button>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-sky-600"></i> Filtros de Búsqueda
+                    </h3>
+                    <button onclick="limpiarFiltros()" class="text-[11px] font-semibold text-sky-600 hover:text-sky-800 transition">
+                        Limpiar filtros
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Filtro 1: Escuela Profesional -->
+                    <div>
+                        <label for="filtroEscuela" class="block text-[11px] font-semibold text-slate-600 mb-1">Escuela Profesional</label>
+                        <select id="filtroEscuela" onchange="aplicarFiltros()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="">Todas las escuelas</option>
+                            <!-- Se llena dinámicamente o por backend -->
+                        </select>
+                    </div>
+
+                    <!-- Filtro 2: Ciclo Académico -->
+                    <div>
+                        <label for="filtroCiclo" class="block text-[11px] font-semibold text-slate-600 mb-1">Ciclo Académico</label>
+                        <select id="filtroCiclo" onchange="aplicarFiltros()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="">Todos los ciclos</option>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                            <option value="VI">VI</option>
+                            <option value="VII">VII</option>
+                            <option value="VIII">VIII</option>
+                            <option value="IX">IX</option>
+                            <option value="X">X</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro 3: Nivel de Riesgo -->
+                    <div>
+                        <label for="filtroRiesgo" class="block text-[11px] font-semibold text-slate-600 mb-1">Nivel de Riesgo</label>
+                        <select id="filtroRiesgo" onchange="aplicarFiltros()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="">Todos los niveles</option>
+                            <option value="Bajo">Bajo</option>
+                            <option value="Moderado">Moderado</option>
+                            <option value="Alto">Alto</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                    <span>Mostrando resultados filtrados:</span>
+                    <span class="font-bold text-slate-800"><span id="cantFiltrados">0</span> registros encontrados</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 uppercase text-[10px] font-bold text-slate-400 border-b border-slate-200 tracking-wider">
+                        <tr>
+                            <th class="p-4">Estudiante</th>
+                            <th class="p-4">Escuela Profesional</th>
+                            <th class="p-4 text-center">Ciclo</th>
+                            <th class="p-4 text-center">Uso Excesivo Int.</th>
+                            <th class="p-4 text-center">Dep. Emocional</th>
+                            <th class="p-4 text-center">Imp. Académico</th>
+                            <th class="p-4 text-center">Pérd. Control</th>
+                            <th class="p-4 text-center">Puntaje Total</th>
+                            <th class="p-4 text-center">Nivel Riesgo</th>
+                            <th class="p-4 text-center">Fecha Evaluación</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaReportes" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="10" class="p-8 text-center text-slate-400">
+                                <i class="fa-solid fa-circle-notch fa-spin text-xl text-sky-600 mb-2"></i>
+                                <p>Cargando datos de reportes...</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+         // 1. Obtiene el nombre guardado en localStorage tal cual está
+         const nombreUsuarioLogin = localStorage.getItem('adminNombre') || 'Administrador';
+
+         // 2. Muestra el nombre tal cual en la interfaz
+         const elNombre = document.getElementById('mostrarNombreUsuario');
+         if (elNombre) {
+             elNombre.textContent = nombreUsuarioLogin;
+         }
+    });
+
+    const API_URL = '/api/admin/evaluaciones';
+    let dataOriginal = [];
+    let dataFiltrada = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cargar Sidebar
+        fetch('sidebar.html')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('sidebar-container').innerHTML = html;
+                const activeNav = document.getElementById('nav-reportes');
+                if (activeNav) {
+                    activeNav.classList.add('bg-sky-600', 'text-white');
+                    activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
+                }
+            });
+
+        cargarDatosReporte();
+    });
+
+    // 1. CARGAR INFORMACIÓN DESDE LA API
+    async function cargarDatosReporte() {
+        try {
+            const res = await fetch(API_URL);
+            if (!res.ok) throw new Error("Error en la solicitud HTTP");
+
+            dataOriginal = await res.json();
+
+            poblarComboEscuelas(dataOriginal);
+            aplicarFiltros();
+
+        } catch (error) {
+            console.error("Error al cargar reportes:", error);
+            document.getElementById('tablaReportes').innerHTML = `
+                <tr>
+                    <td colspan="10" class="p-6 text-center text-red-500 font-medium">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> No se pudo obtener la información desde la base de datos.
+                    </td>
+                </tr>`;
+        }
+    }
+
+    // Poblar dinámicamente las escuelas únicas encontradas en la BD
+    function poblarComboEscuelas(lista) {
+        const combo = document.getElementById('filtroEscuela');
+        const escuelasMap = new Map();
+
+        lista.forEach(ev => {
+            if (ev.estudiante && ev.estudiante.escuelaProfesional) {
+                escuelasMap.set(ev.estudiante.escuelaProfesional.id, ev.estudiante.escuelaProfesional.nombre);
+            }
+        });
+
+        escuelasMap.forEach((nombre, id) => {
+            const opt = document.createElement('option');
+            opt.value = nombre;
+            opt.textContent = nombre;
+            combo.appendChild(opt);
+        });
+    }
+
+    // 2. APLICAR FILTROS COMBINADOS (Escuela, Ciclo y Nivel de Riesgo)
+    function aplicarFiltros() {
+        const escSel = document.getElementById('filtroEscuela').value.toLowerCase();
+        const cicloSel = document.getElementById('filtroCiclo').value.toLowerCase();
+        const riesgoSel = document.getElementById('filtroRiesgo').value.toLowerCase();
+
+        dataFiltrada = dataOriginal.filter(ev => {
+            const est = ev.estudiante || {};
+            const res = ev.resultado || {};
+
+            const escNom = est.escuelaProfesional ? est.escuelaProfesional.nombre.toLowerCase() : '';
+            const ciclo = (est.cicloAcademico || '').toLowerCase();
+            const riesgo = (res.nivelRiesgo || '').toLowerCase();
+
+            const matchEscuela = !escSel || escNom === escSel;
+            const matchCiclo = !cicloSel || ciclo === cicloSel;
+            const matchRiesgo = !riesgoSel || riesgo.includes(riesgoSel);
+
+            return matchEscuela && matchCiclo && matchRiesgo;
+        });
+
+        renderizarTablaReporte(dataFiltrada);
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('filtroEscuela').value = "";
+        document.getElementById('filtroCiclo').value = "";
+        document.getElementById('filtroRiesgo').value = "";
+        aplicarFiltros();
+    }
+
+    // 3. RENDERIZAR TABLA CON ATRIBUTOS SOLICITADOS
+    function renderizarTablaReporte(lista) {
+        const tbody = document.getElementById('tablaReportes');
+        document.getElementById('cantFiltrados').innerText = lista.length;
+
+        if (!lista || lista.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="p-6 text-center text-slate-400">
+                        No se encontraron registros con los filtros seleccionados.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = lista.map(ev => {
+            const est = ev.estudiante || {};
+            const res = ev.resultado || {};
+
+            const nombreCompleto = (est.nombres && est.apellidos) ? `${est.nombres} ${est.apellidos}` : 'N/A';
+            const escuela = est.escuelaProfesional ? est.escuelaProfesional.nombre : 'N/A';
+            const ciclo = est.cicloAcademico || 'N/A';
+            const fecha = ev.fechaRegistro ? new Date(ev.fechaRegistro).toLocaleDateString() : 'N/A';
+            const nivel = res.nivelRiesgo || 'N/A';
+
+            // Colores por Nivel de Riesgo
+            let badgeStyle = "bg-slate-100 text-slate-700";
+            const nivelLower = nivel.toLowerCase();
+
+            if (nivelLower.includes('alto')) {
+                badgeStyle = "bg-red-100 text-red-700 font-bold border border-red-200";
+            } else if (nivelLower.includes('moderado') || nivelLower.includes('medio')) {
+                badgeStyle = "bg-amber-100 text-amber-800 font-bold border border-amber-200";
+            } else if (nivelLower.includes('bajo')) {
+                badgeStyle = "bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
+            }
+
+            return `
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="p-4 font-bold text-slate-800">${nombreCompleto}</td>
+                    <td class="p-4 text-slate-600">${escuela}</td>
+                    <td class="p-4 text-center font-semibold text-slate-600">${ciclo}</td>
+                    <td class="p-4 text-center font-medium">${res.usoExcesivoInternet ?? 0} pts</td>
+                    <td class="p-4 text-center font-medium">${res.dependenciaEmocional ?? 0} pts</td>
+                    <td class="p-4 text-center font-medium">${res.impactoAcademico ?? 0} pts</td>
+                    <td class="p-4 text-center font-medium">${res.perdidaControl ?? 0} pts</td>
+                    <td class="p-4 text-center font-bold text-sky-700">${res.puntajeTotal ?? 0} pts</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] ${badgeStyle}">
+                            ${nivel}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center text-slate-500">${fecha}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // 4. EXPORTAR A EXCEL (SOLO LO FILTRADO ACTUALMENTE EN PANTALLA)
+    function exportarExcel() {
+        if (!dataFiltrada || dataFiltrada.length === 0) {
+            alert("No hay datos filtrados para exportar a Excel.");
+            return;
+        }
+
+        // Mapear los datos filtrados con nombres de columnas limpios
+        const datosExcel = dataFiltrada.map((ev, index) => {
+            const est = ev.estudiante || {};
+            const res = ev.resultado || {};
+
+            return {
+                "N°": index + 1,
+                "Nombres y Apellidos": `${est.nombres || ''} ${est.apellidos || ''}`.trim(),
+                "Edad": est.edad ?? 'N/A',
+                "Escuela Profesional": est.escuelaProfesional ? est.escuelaProfesional.nombre : 'N/A',
+                "Ciclo Académico": est.cicloAcademico || 'N/A',
+                "Promedio Ponderado": est.promedioPonderado ?? 'N/A',
+                "Uso Excesivo de Internet": res.usoExcesivoInternet ?? 0,
+                "Dependencia Emocional": res.dependenciaEmocional ?? 0,
+                "Impacto Académico": res.impactoAcademico ?? 0,
+                "Pérdida de Control": res.perdidaControl ?? 0,
+                "Puntaje Total": res.puntajeTotal ?? 0,
+                "Nivel de Riesgo": res.nivelRiesgo || 'N/A',
+                "Fecha de Evaluación": ev.fechaRegistro ? new Date(ev.fechaRegistro).toLocaleString() : 'N/A'
+            };
+        });
+
+        // Crear Libro de Trabajo (Workbook)
+        const worksheet = XLSX.utils.json_to_sheet(datosExcel);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte_Evaluaciones");
+
+        // Ajuste automático de ancho de columnas
+        const max_width = datosExcel.reduce((w, r) => Math.max(w, r["Nombres y Apellidos"].length), 10);
+        worksheet["!cols"] = [
+            { wch: 5 },  // N°
+            { wch: Math.max(max_width, 25) }, // Nombres
+            { wch: 8 },  // Edad (Ajustado)
+            { wch: 30 }, // Escuela
+            { wch: 15 }, // Ciclo
+            { wch: 18 }, // Promedio Ponderado (Ajustado)
+            { wch: 18 }, // Promedio
+            { wch: 22 }, // Uso Internet
+            { wch: 22 }, // Dep Emocional
+            { wch: 18 }, // Imp Academico
+            { wch: 18 }, // Perdida Control
+            { wch: 15 }, // Puntaje Total
+            { wch: 15 }, // Nivel Riesgo
+            { wch: 20 }  // Fecha
+        ];
+
+        // Descargar archivo Excel con fecha actual
+        const fechaActual = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(workbook, `Reporte_SIRAI_${fechaActual}.xlsx`);
+    }
+</script>
+
+</body>
+</html>

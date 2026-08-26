@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRAI - Panel de Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex">
+<div class="flex h-screen w-screen overflow-hidden bg-slate-100">
+    <div id="sidebar-container" class="h-full bg-slate-900 shrink-0"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+
+        <!-- TOPBAR -->
+        <header class="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400 font-semibold uppercase">Panel de Control</span>
+                <span class="text-slate-300">/</span>
+                <span id="topbar-title" class="text-sm font-bold text-slate-700">Resumen General</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="mostrarNombreUsuario" class="text-xs font-bold text-slate-700">Administrador</p>
+                    <p class="text-[10px] text-slate-400">Administrador</p>
+                </div>
+                <div class="w-9 h-9 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <!-- SECCIONES DE CONTENIDO -->
+        <main class="flex-1 h-full overflow-y-auto p-6">
+
+            <!--SECCIÓN DASHBOARD-->
+            <section id="sec-dashboard" class="seccion space-y-6">
+
+                <!-- TARJETAS DE MÉTRICAS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-400">Estudiantes</p>
+                            <h3 id="totalEstudiantes" class="text-2xl font-black text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-400">Evaluaciones</p>
+                            <h3 id="totalEvaluaciones" class="text-2xl font-black text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-square-check"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-400">Riesgo Alto</p>
+                            <h3 id="totalRiesgoAlto" class="text-2xl font-black text-red-600 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-400">Escuelas</p>
+                            <h3 id="totalEscuelas" class="text-2xl font-black text-slate-800 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-school"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DE GRÁFICOS -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Distribución por Riesgo</h4>
+                            <p class="text-xs text-slate-400">Porcentaje general de nivel de riesgo en estudiantes</p>
+                        </div>
+                        <div class="relative mt-4 h-64 flex items-center justify-center">
+                            <canvas id="chartRiesgo"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Riesgo según Sexo</h4>
+                            <p class="text-xs text-slate-400">Cantidad de estudiantes distribuidos por sexo y nivel</p>
+                        </div>
+                        <div class="relative mt-4 h-64">
+                            <canvas id="chartSexo"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Riesgo según Ciclo Académico</h4>
+                            <p class="text-xs text-slate-400">Nivel de riesgo registrado del I al X ciclo</p>
+                        </div>
+                        <div class="relative mt-4 h-64">
+                            <canvas id="chartCiclos"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-base font-bold text-slate-800">Riesgo según Carrera Profesional</h4>
+                            <p class="text-xs text-slate-400">Comparativa de niveles por carrera/escuela</p>
+                        </div>
+                        <div class="relative mt-4 h-64">
+                            <canvas id="chartCarreras"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+         // 1. Obtiene el nombre guardado en localStorage tal cual está
+         const nombreUsuarioLogin = localStorage.getItem('adminNombre') || 'Administrador';
+
+         // 2. Muestra el nombre tal cual en la interfaz
+         const elNombre = document.getElementById('mostrarNombreUsuario');
+         if (elNombre) {
+             elNombre.textContent = nombreUsuarioLogin;
+         }
+    });
+
+    // Cargar Sidebar dinámico
+    fetch('sidebar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('sidebar-container').innerHTML = html;
+            const activeNav = document.getElementById('nav-dashboard');
+            if (activeNav) {
+                activeNav.classList.add('bg-sky-600', 'text-white');
+                activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
+            }
+        });
+
+    let chartRiesgo, chartSexo, chartCiclos, chartCarreras;
+
+    const COLOR_ALTO   = '#ef4444'; // Rojo
+    const COLOR_MEDIO  = '#f59e0b'; // Ámbar/Moderado
+    const COLOR_BAJO   = '#10b981'; // Verde
+
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarDatosDashboard();
+    });
+
+    async function cargarDatosDashboard() {
+        try {
+            const [resEst, resEval, resEsc] = await Promise.all([
+                fetch('/api/admin/estudiantes').catch(() => null),
+                fetch('/api/admin/evaluaciones').catch(() => null),
+                fetch('/api/public/escuelas-profesionales').catch(() => null)
+            ]);
+
+            const estudiantes = (resEst && resEst.ok) ? await resEst.json() : [];
+            const evaluaciones = (resEval && resEval.ok) ? await resEval.json() : [];
+            const escuelas = (resEsc && resEsc.ok) ? await resEsc.json() : [];
+
+            // 1. Totales de Tarjetas
+            document.getElementById('totalEstudiantes').innerText = estudiantes.length;
+            document.getElementById('totalEvaluaciones').innerText = evaluaciones.length;
+            document.getElementById('totalEscuelas').innerText = escuelas.length;
+
+            // Contar Riesgo Alto extrayendo exactamente de e.resultado.nivelRiesgo
+            const altoCount = evaluaciones.filter(e => e.resultado?.nivelRiesgo === 'ALTO').length;
+            document.getElementById('totalRiesgoAlto').innerText = altoCount;
+
+            // 2. Renderizar los 4 Gráficos
+            renderGraficoRiesgo(evaluaciones);
+            renderGraficoSexo(evaluaciones);
+            renderGraficoCiclos(evaluaciones);
+            renderGraficoCarreras(evaluaciones, escuelas);
+
+        } catch (error) {
+            console.error("Error al cargar datos del dashboard:", error);
+        }
+    }
+
+    // 1. DISTRIBUCIÓN POR RIESGO (Dona)
+    function renderGraficoRiesgo(evaluaciones) {
+        let bajo = 0, moderado = 0, alto = 0;
+
+        evaluaciones.forEach(e => {
+            const nivel = e.resultado?.nivelRiesgo || '';
+            if (nivel === 'BAJO') bajo++;
+            else if (nivel === 'MODERADO' || nivel === 'MEDIO') moderado++;
+            else if (nivel === 'ALTO') alto++;
+        });
+
+        if (chartRiesgo) chartRiesgo.destroy();
+        chartRiesgo = new Chart(document.getElementById('chartRiesgo'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Bajo', 'Moderado', 'Alto'],
+                datasets: [{
+                    data: [bajo, moderado, alto],
+                    backgroundColor: [COLOR_BAJO, COLOR_MEDIO, COLOR_ALTO],
+                    borderWidth: 2
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // 2. RIESGO SEGÚN SEXO (Barras)
+    function renderGraficoSexo(evaluaciones) {
+        const dataSexo = {
+            'Masculino': { Alto: 0, Moderado: 0, Bajo: 0 },
+            'Femenino': { Alto: 0, Moderado: 0, Bajo: 0 }
+        };
+
+        evaluaciones.forEach(e => {
+            const sexo = e.estudiante?.sexo || 'Masculino';
+            const nivel = e.resultado?.nivelRiesgo || '';
+
+            if (dataSexo[sexo]) {
+                if (nivel === 'ALTO') dataSexo[sexo].Alto++;
+                else if (nivel === 'MODERADO' || nivel === 'MEDIO') dataSexo[sexo].Moderado++;
+                else if (nivel === 'BAJO') dataSexo[sexo].Bajo++;
+            }
+        });
+
+        if (chartSexo) chartSexo.destroy();
+        chartSexo = new Chart(document.getElementById('chartSexo'), {
+            type: 'bar',
+            data: {
+                labels: ['Masculino', 'Femenino'],
+                datasets: [
+                    { label: 'Alto', data: [dataSexo['Masculino'].Alto, dataSexo['Femenino'].Alto], backgroundColor: COLOR_ALTO, borderRadius: 4 },
+                    { label: 'Moderado', data: [dataSexo['Masculino'].Moderado, dataSexo['Femenino'].Moderado], backgroundColor: COLOR_MEDIO, borderRadius: 4 },
+                    { label: 'Bajo', data: [dataSexo['Masculino'].Bajo, dataSexo['Femenino'].Bajo], backgroundColor: COLOR_BAJO, borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+
+    // 3. RIESGO SEGÚN CICLO ACADÉMICO (Mapeo de Romanos I al X)
+    function renderGraficoCiclos(evaluaciones) {
+        const ciclosLabels = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+
+        // Mapeador para números romanos
+        const mapaRomanos = { 'I':0, 'II':1, 'III':2, 'IV':3, 'V':4, 'VI':5, 'VII':6, 'VIII':7, 'IX':8, 'X':9 };
+
+        const altoData = Array(10).fill(0);
+        const modData  = Array(10).fill(0);
+        const bajoData = Array(10).fill(0);
+
+        evaluaciones.forEach(e => {
+            const cicloRomano = (e.estudiante?.cicloAcademico || '').trim().toUpperCase();
+            const cicloIndex = mapaRomanos[cicloRomano];
+            const nivel = e.resultado?.nivelRiesgo || '';
+
+            if (cicloIndex !== undefined && cicloIndex >= 0 && cicloIndex < 10) {
+                if (nivel === 'ALTO') altoData[cicloIndex]++;
+                else if (nivel === 'MODERADO' || nivel === 'MEDIO') modData[cicloIndex]++;
+                else if (nivel === 'BAJO') bajoData[cicloIndex]++;
+            }
+        });
+
+        if (chartCiclos) chartCiclos.destroy();
+        chartCiclos = new Chart(document.getElementById('chartCiclos'), {
+            type: 'bar',
+            data: {
+                labels: ciclosLabels.map(c => 'Ciclo ' + c),
+                datasets: [
+                    { label: 'Alto', data: altoData, backgroundColor: COLOR_ALTO },
+                    { label: 'Moderado', data: modData, backgroundColor: COLOR_MEDIO },
+                    { label: 'Bajo', data: bajoData, backgroundColor: COLOR_BAJO }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    }
+
+    // 4. RIESGO SEGÚN CARRERA PROFESIONAL / ESCUELA
+    function renderGraficoCarreras(evaluaciones, escuelas) {
+        // Extrae la lista de nombres de las escuelas
+        const labels = escuelas.map(esc => esc.nombre || esc.nombreEscuela || 'Escuela');
+
+        const conteo = {};
+        labels.forEach(nombre => {
+            conteo[nombre] = { Alto: 0, Moderado: 0, Bajo: 0 };
+        });
+
+        evaluaciones.forEach(e => {
+            const nombreEscuela = e.estudiante?.escuelaProfesional?.nombre;
+            const nivel = e.resultado?.nivelRiesgo || '';
+
+            // Si la escuela existe en el conteo, sumar el nivel
+            if (nombreEscuela && conteo[nombreEscuela]) {
+                if (nivel === 'ALTO') conteo[nombreEscuela].Alto++;
+                else if (nivel === 'MODERADO' || nivel === 'MEDIO') conteo[nombreEscuela].Moderado++;
+                else if (nivel === 'BAJO') conteo[nombreEscuela].Bajo++;
+            }
+        });
+
+        const altoData = labels.map(nom => conteo[nom]?.Alto || 0);
+        const modData  = labels.map(nom => conteo[nom]?.Moderado || 0);
+        const bajoData = labels.map(nom => conteo[nom]?.Bajo || 0);
+
+        if (chartCarreras) chartCarreras.destroy();
+        chartCarreras = new Chart(document.getElementById('chartCarreras'), {
+            type: 'bar',
+            data: {
+                labels: labels.length > 0 ? labels : ['Sin Datos'],
+                datasets: [
+                    { label: 'Alto', data: altoData, backgroundColor: COLOR_ALTO, borderRadius: 4 },
+                    { label: 'Moderado', data: modData, backgroundColor: COLOR_MEDIO, borderRadius: 4 },
+                    { label: 'Bajo', data: bajoData, backgroundColor: COLOR_BAJO, borderRadius: 4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+    }
+</script>
+
+</body>
+</html>

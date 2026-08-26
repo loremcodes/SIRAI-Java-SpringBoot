@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRAI - Panel de Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex">
+<div class="flex h-screen w-screen overflow-hidden bg-slate-100">
+    <div id="sidebar-container"></div>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+        <header class="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400 font-semibold uppercase">Panel de Control</span>
+                <span class="text-slate-300">/</span>
+                <span id="topbar-title" class="text-sm font-bold text-slate-700">Usuarios</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="mostrarNombreUsuario"class="text-xs font-bold text-slate-700">Cargando...</p>
+                    <p class="text-[10px] text-slate-400">Administrador</p>
+                </div>
+                <div class="w-9 h-9 bg-sky-100 text-sky-700 rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <main class="p-6 max-w-7xl w-full mx-auto space-y-6">
+
+            <section id="sec-usuarios" class="seccion space-y-6">
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Gestión de Usuarios</h2>
+                        <p class="text-xs text-slate-500">Administración de accesos a la plataforma SIRAI</p>
+                    </div>
+                    <button onclick="abrirModalUsuario()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo usuario</span>
+                    </button>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-center">
+                    <div class="relative w-full sm:w-80">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="buscarUsuario" onkeyup="filtrarUsuarios()" placeholder="Buscar por nombre o usuario..."
+                               class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div class="text-xs text-slate-400 font-semibold">
+                        Total registrados: <span id="totalUsuarios" class="text-slate-800 font-bold">0</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-50 uppercase text-[10px] font-bold text-slate-400 border-b border-slate-200 tracking-wider">
+                            <tr>
+                                <th class="p-4 w-16 text-center">N°</th>
+                                <th class="p-4">Nombre y apellidos</th>
+                                <th class="p-4">Nombre de usuario</th>
+                                <th class="p-4 text-center w-28">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaUsuarios" class="divide-y divide-slate-100">
+                            <!-- Los datos se cargan dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <div id="modalUsuario" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden">
+
+                    <!-- Modal Header -->
+                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+                        <h3 id="modalUsuarioTitulo" class="font-bold text-slate-800 text-sm">Nuevo Usuario</h3>
+                        <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-600">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Form -->
+                    <form id="formUsuario" class="p-6 space-y-4">
+                        <input type="hidden" id="usuarioId">
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombres y apellidos</label>
+                            <input type="text" id="nombreYapellidos" required placeholder="Ej. Milagros Quispe Soto"
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre de Usuario</label>
+                            <input type="text" id="nombreUsuario" required placeholder="Ej. milagros.admin"
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Contraseña</label>
+                            <input type="password" id="contrasenia" placeholder="Ingrese contraseña"
+                                   class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <p id="passwordHelp" class="text-[10px] text-slate-400 mt-1 hidden">Dejar en blanco si no se desea modificar la contraseña actual.</p>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                            <button type="button" onclick="cerrarModalUsuario()"
+                                    class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Guardar</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <div id="modalEliminarUsuario" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 text-center space-y-4">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base">¿Eliminar usuario?</h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            ¿Estás seguro de eliminar al usuario <span id="nombreUsuarioEliminar" class="font-bold text-slate-700"></span>? Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+                    <div class="flex gap-2 justify-center pt-2">
+                        <button onclick="cerrarModalEliminar()"
+                                class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition">
+                            Cancelar
+                        </button>
+                        <button onclick="ejecutarEliminacion()"
+                                class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow transition">
+                            Sí, eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+         // 1. Obtiene el nombre guardado en localStorage tal cual está
+         const nombreUsuarioLogin = localStorage.getItem('adminNombre') || 'Administrador';
+
+         // 2. Muestra el nombre tal cual en la interfaz
+         const elNombre = document.getElementById('mostrarNombreUsuario');
+         if (elNombre) {
+             elNombre.textContent = nombreUsuarioLogin;
+         }
+     });
+     // CARGAR SIDEBAR DINÁMICO
+     fetch('sidebar.html')
+         .then(response => response.text())
+         .then(html => {
+             document.getElementById('sidebar-container').innerHTML = html;
+             const activeNav = document.getElementById('nav-usuarios');
+             if (activeNav) {
+                 activeNav.classList.add('bg-sky-600', 'text-white');
+                 activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
+             }
+         });
+
+     // ENDPOINTS API REST
+     const URL_LISTAR   = '/api/admin';
+     const URL_NUEVO    = '/api/admin/usuario/nuevo';
+     const URL_EDITAR   = '/api/admin/usuario/editar';
+     const URL_ELIMINAR = '/api/admin/usuario/eliminar';
+
+     let listaUsuarios = [];
+     let idUsuarioAEliminar = null;
+
+     document.addEventListener("DOMContentLoaded", () => {
+         cargarUsuarios();
+     });
+
+     // 1. OBTENER Y MOSTRAR LISTA DE USUARIOS
+     async function cargarUsuarios() {
+         try {
+             const res = await fetch(URL_LISTAR);
+             if (!res.ok) throw new Error("Error al consultar la base de datos");
+             listaUsuarios = await res.json();
+             renderizarTabla(listaUsuarios);
+         } catch (err) {
+             console.error("Error al cargar usuarios:", err);
+             document.getElementById('tablaUsuarios').innerHTML = `
+                 <tr>
+                     <td colspan="4" class="p-4 text-center text-red-500 font-medium">
+                         Error al conectar con la base de datos.
+                     </td>
+                 </tr>`;
+         }
+     }
+
+     // 2. RENDEREAR FILAS EN LA TABLA HTML
+     function renderizarTabla(usuarios) {
+         const tbody = document.getElementById('tablaUsuarios');
+         document.getElementById('totalUsuarios').innerText = usuarios.length;
+
+         if (usuarios.length === 0) {
+             tbody.innerHTML = `
+                 <tr>
+                     <td colspan="4" class="p-4 text-center text-slate-400">
+                         No hay usuarios registrados.
+                     </td>
+                 </tr>`;
+             return;
+         }
+
+         tbody.innerHTML = usuarios.map((u, index) => {
+             const nombresEscapado = (u.nombres || '').replace(/'/g, "\\'");
+             const usuarioEscapado = (u.usuario || '').replace(/'/g, "\\'");
+
+             return `
+                 <tr class="hover:bg-slate-50/80 transition">
+                     <td class="p-4 font-mono font-bold text-slate-400 text-center">${index + 1}</td>
+                     <td class="p-4 font-bold text-slate-800">${u.nombres || 'N/A'}</td>
+                     <td class="p-4 text-slate-600">${u.usuario || 'N/A'}</td>
+                     <td class="p-4 text-center">
+                         <div class="flex items-center justify-center gap-1">
+                             <button onclick="editarUsuario(${u.id}, '${nombresEscapado}', '${usuarioEscapado}')" title="Editar"
+                                     class="p-2 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg transition">
+                                 <i class="fa-solid fa-pen-to-square"></i>
+                             </button>
+                             <button onclick="confirmarEliminarUsuario(${u.id}, '${nombresEscapado}')" title="Eliminar"
+                                     class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition">
+                                 <i class="fa-solid fa-trash"></i>
+                             </button>
+                         </div>
+                     </td>
+                 </tr>
+             `;
+         }).join('');
+     }
+
+     // 3. FILTRAR USUARIOS EN TIEMPO REAL
+     function filtrarUsuarios() {
+         const query = document.getElementById('buscarUsuario').value.toLowerCase();
+         const filtradas = listaUsuarios.filter(u =>
+             (u.nombres && u.nombres.toLowerCase().includes(query)) ||
+             (u.usuario && u.usuario.toLowerCase().includes(query))
+         );
+         renderizarTabla(filtradas);
+     }
+
+     // 4. CONTROL DE MODALES
+     function abrirModalUsuario() {
+         document.getElementById('modalUsuarioTitulo').innerText = 'Nuevo Usuario';
+         document.getElementById('formUsuario').reset();
+         document.getElementById('usuarioId').value = '';
+
+         // Contraseña obligatoria para crear
+         const inputPass = document.getElementById('contrasenia');
+         inputPass.required = true;
+         document.getElementById('passwordHelp').classList.add('hidden');
+
+         document.getElementById('modalUsuario').classList.remove('hidden');
+     }
+
+     function editarUsuario(id, nombres, usuario) {
+         document.getElementById('modalUsuarioTitulo').innerText = 'Editar Usuario';
+         document.getElementById('usuarioId').value = id;
+         document.getElementById('nombreYapellidos').value = nombres;
+         document.getElementById('nombreUsuario').value = usuario;
+
+         // Contraseña opcional para editar
+         const inputPass = document.getElementById('contrasenia');
+         inputPass.value = '';
+         inputPass.required = false;
+         document.getElementById('passwordHelp').classList.remove('hidden');
+
+         document.getElementById('modalUsuario').classList.remove('hidden');
+     }
+
+     function cerrarModalUsuario() {
+         document.getElementById('modalUsuario').classList.add('hidden');
+     }
+
+     // 5. GUARDAR Y EDITAR (AJAX FETCH)
+     document.getElementById('formUsuario').addEventListener('submit', async (e) => {
+         e.preventDefault();
+
+         const id = document.getElementById('usuarioId').value;
+         const nombres = document.getElementById('nombreYapellidos').value;
+         const usuario = document.getElementById('nombreUsuario').value;
+         const contrasenia = document.getElementById('contrasenia').value;
+
+         // Mapeo exacto de las claves JSON a la entidad Administrador de Java
+         const payload = {
+             nombres: nombres,
+             usuario: usuario
+         };
+
+         // Si se escribió contraseña (o si es nuevo), se adjunta al objeto
+         if (contrasenia.trim() !== '') {
+             payload.password = contrasenia;
+         }
+
+         const esEdicion = Boolean(id);
+         const url = esEdicion ? `${URL_EDITAR}/${id}` : URL_NUEVO;
+         const method = esEdicion ? 'PUT' : 'POST';
+
+         try {
+             const res = await fetch(url, {
+                 method: method,
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(payload)
+             });
+
+             if (res.ok) {
+                 cerrarModalUsuario();
+                 cargarUsuarios();
+             } else {
+                 const errorText = await res.text();
+                 console.error(`Error ${res.status}:`, errorText);
+                 alert(`Error al guardar el usuario. Verifique la consola.`);
+             }
+         } catch (err) {
+             console.error('Error de red al guardar:', err);
+             alert('Error de conexión con el servidor.');
+         }
+     });
+
+     // 6. ELIMINAR USUARIO
+     function confirmarEliminarUsuario(id, nombres) {
+         idUsuarioAEliminar = id;
+         document.getElementById('nombreUsuarioEliminar').innerText = nombres;
+         document.getElementById('modalEliminarUsuario').classList.remove('hidden');
+     }
+
+     function cerrarModalEliminar() {
+         document.getElementById('modalEliminarUsuario').classList.add('hidden');
+         idUsuarioAEliminar = null;
+     }
+
+     async function ejecutarEliminacion() {
+         if (!idUsuarioAEliminar) return;
+
+         try {
+             const res = await fetch(`${URL_ELIMINAR}/${idUsuarioAEliminar}`, {
+                 method: 'DELETE'
+             });
+
+             if (res.ok) {
+                 cerrarModalEliminar();
+                 cargarUsuarios();
+             } else {
+                 alert('No se pudo eliminar el usuario.');
+             }
+         } catch (err) {
+             console.error('Error al eliminar:', err);
+         }
+     }
+</script>
+</body>
+</html>

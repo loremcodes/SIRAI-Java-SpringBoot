@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRAI - Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+<nav class="bg-white border-b border-slate-200 py-3 px-6 shadow-sm">
+    <div class="max-w-5xl mx-auto flex justify-between items-center">
+        <a href="index.html" class="flex items-center gap-3">
+            <span class="text-lg font-black text-slate-800">SIRAI</span>
+        </a>
+        <a href="index.html" class="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1">
+            <i class="fa-solid fa-house"></i> Ir al inicio
+        </a>
+    </div>
+</nav>
+
+<main class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl p-8 max-w-md w-full">
+
+        <div class="text-center mb-6">
+            <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
+                <i class="fa-solid fa-user-shield text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800">Acceso Administrativo</h2>
+            <p class="text-xs text-slate-500 mt-1">Ingrese sus credenciales para acceder al sistema SIRAI</p>
+        </div>
+
+        <div id="mensajeError" class="hidden mb-4 p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-base"></i>
+            <span id="textoError">Usuario o contraseña incorrectos.</span>
+        </div>
+
+        <form id="formLogin" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Usuario</label>
+                <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-user"></i>
+            </span>
+                    <input type="text" id="usuario" required placeholder="Ej. admin"
+                           class="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Contraseña</label>
+                <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+                    <input type="password" id="password" required placeholder="••••••••"
+                           class="w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none text-sm">
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmit"
+                    class="w-full mt-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Iniciar Sesión</span>
+            </button>
+        </form>
+
+    </div>
+</main>
+
+<footer class="bg-slate-900 text-slate-400 text-xs py-4 text-center border-t border-slate-800">
+    <p>© 2026 SIRAI. Sistema Inteligente de Riesgo de Adicción a Internet</p>
+</footer>
+
+<script>
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 1. .trim() elimina espacios invisibles al inicio/final
+        const usuario = document.getElementById('usuario').value.trim();
+        const password = document.getElementById('password').value;
+
+        const mensajeError = document.getElementById('mensajeError');
+        const textoError = document.getElementById('textoError');
+
+        mensajeError.classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+
+            const data = await response.json();
+
+            // 👈 IMPRIME EL OBJETIVO REAL EN PESTAÑA CONSOLE DE DEVTOOLS
+            console.log("Respuesta obtenida del servidor:", data);
+
+            if (data.exito) {
+                // Ajustado a data.nombreUsuario (o data.nombreAdmin según tu DTO Java)
+                const nombreMostrar = data.nombreUsuario || data.nombreAdmin || 'Administrador';
+                localStorage.setItem('adminNombre', nombreMostrar);
+
+                window.location.href = 'dashboard.html';
+            } else {
+                textoError.textContent = data.mensaje;
+                mensajeError.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error de red:', error);
+            textoError.textContent = 'No se pudo conectar con el servidor.';
+            mensajeError.classList.remove('hidden');
+        }
+    });
+</script>
+</body>
+</html>
